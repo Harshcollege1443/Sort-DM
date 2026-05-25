@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ShopDrop — Affiliate Store</title>
+   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0a0a'/%3E%3Cpath d='M20 26h24l-3 18H23L20 26z' fill='none' stroke='%23e8c97d' stroke-width='2.5' stroke-linejoin='round'/%3E%3Cpath d='M26 26v-4a6 6 0 0 1 12 0v4' fill='none' stroke='%23e8c97d' stroke-width='2.5' stroke-linecap='round'/%3E%3Ccircle cx='28' cy='35' r='1.5' fill='%23e8c97d'/%3E%3Ccircle cx='36' cy='35' r='1.5' fill='%23e8c97d'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --card: #1a1a1a;
+      --border: #2a2a2a;
+      --accent: #e8c97d;
+      --accent2: #d4a853;
+      --text: #f0ede8;
+      --muted: #888;
+      --insta: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+      --radius: 16px;
+      --nav-h: 70px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ── CURSOR ── */
+    .cursor {
+      width: 12px; height: 12px;
+      background: var(--accent);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9999;
+      transition: transform 0.15s ease, opacity 0.2s;
+      mix-blend-mode: difference;
+    }
+    .cursor-ring {
+      width: 36px; height: 36px;
+      border: 1.5px solid var(--accent);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9998;
+      transition: transform 0.35s ease, opacity 0.3s;
+      opacity: 0.5;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: var(--nav-h);
+      background: rgba(10,10,10,0.85);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 5%;
+      z-index: 100;
+      transition: background 0.3s;
+    }
+
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem; font-weight: 900;
+      color: var(--accent);
+      letter-spacing: -0.5px;
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--text); }
+
+    .nav-links {
+      display: flex; gap: 2rem; list-style: none;
+    }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none; font-size: 0.9rem;
+      font-weight: 500; letter-spacing: 0.03em;
+      transition: color 0.2s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute; bottom: -4px; left: 0;
+      width: 0; height: 1.5px;
+      background: var(--accent);
+      transition: width 0.3s ease;
+    }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-links a:hover::after { width: 100%; }
+
+    .nav-insta {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 8px 18px;
+      background: var(--insta);
+      border-radius: 50px;
+      color: #fff; font-size: 0.85rem; font-weight: 500;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .nav-insta:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(220,39,67,0.4); }
+    .nav-insta svg { width: 16px; height: 16px; }
+
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px; cursor: pointer; border: none; background: none;
+    }
+    .hamburger span { display: block; width: 24px; height: 2px; background: var(--text); transition: all 0.3s; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 115vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center;
+      padding: 0 5%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(232,201,125,0.08) 0%, transparent 70%),
+                  radial-gradient(ellipse 40% 40% at 80% 20%, rgba(212,168,83,0.05) 0%, transparent 60%);
+    }
+    .hero-grain {
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .hero-tag {
+      font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 1.2rem;
+      opacity: 0; animation: fadeUp 0.8s 0.2s forwards;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3rem, 8vw, 7rem);
+      font-weight: 900; line-height: 1.05;
+      opacity: 0; animation: fadeUp 0.8s 0.4s forwards;
+    }
+    .hero h1 em { font-style: italic; color: var(--accent); }
+    .hero p {
+      max-width: 520px; font-size: 1.05rem; color: var(--muted);
+      margin: 1.5rem auto 2.5rem; line-height: 1.7;
+      opacity: 0; animation: fadeUp 0.8s 0.6s forwards;
+    }
+    .hero-cta {
+      display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+      opacity: 0; animation: fadeUp 0.8s 0.8s forwards;
+    }
+    .btn-primary {
+      padding: 14px 32px;
+      background: var(--accent); color: #0a0a0a;
+      border-radius: 50px; font-weight: 600; font-size: 0.95rem;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(232,201,125,0.3); }
+    .btn-ghost {
+      padding: 14px 32px;
+      border: 1.5px solid var(--border); color: var(--text);
+      border-radius: 50px; font-weight: 500; font-size: 0.95rem;
+      text-decoration: none;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .btn-ghost:hover { border-color: var(--accent); transform: translateY(-3px); }
+
+    .scroll-indicator {
+      position: absolute; bottom: 40px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      opacity: 0; animation: fadeUp 0.8s 1.2s forwards;
+    }
+    .scroll-indicator span { font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+    .scroll-line { width: 1px; height: 50px; background: linear-gradient(to bottom, var(--accent), transparent); animation: scrollPulse 2s infinite; }
+
+    /* ── SECTION COMMONS ── */
+    section { padding: 100px 5%; }
+    .section-label {
+      font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 0.8rem;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900;
+      line-height: 1.1; margin-bottom: 3rem;
+    }
+    .section-title em { color: var(--accent); font-style: italic; }
+
+    /* ── PRODUCTS ── */
+    #products { background: var(--bg); }
+    .filter-bar {
+      display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 3rem;
+    }
+    .filter-btn {
+      padding: 8px 20px;
+      border: 1.5px solid var(--border);
+      background: transparent; color: var(--muted);
+      border-radius: 50px; font-size: 0.85rem; font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      border-color: var(--accent); color: var(--accent); background: rgba(232,201,125,0.07);
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .product-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s;
+      cursor: pointer;
+      opacity: 0; transform: translateY(30px);
+    }
+    .product-card.visible {
+      animation: cardReveal 0.6s ease forwards;
+    }
+    .product-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 24px 50px rgba(0,0,0,0.5);
+      border-color: rgba(232,201,125,0.3);
+    }
+
+    .card-img {
+      width: 100%; aspect-ratio: 4/3; overflow: hidden;
+      position: relative;
+    }
+    .card-img img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    .product-card:hover .card-img img { transform: scale(1.08); }
+
+    .card-badge {
+      position: absolute; top: 12px; left: 12px;
+      padding: 4px 10px; border-radius: 50px;
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .badge-hot { background: #e84d4d; color: #fff; }
+    .badge-new { background: var(--accent); color: #0a0a0a; }
+    .badge-sale { background: #4d9de8; color: #fff; }
+
+    .card-body { padding: 20px; }
+    .card-category { font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+    .card-name { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; line-height: 1.3; }
+    .card-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
+    .card-footer { display: flex; align-items: center; justify-content: space-between; }
+    .card-price { font-size: 1.4rem; font-weight: 700; color: var(--accent); }
+    .card-price-old { font-size: 0.85rem; color: var(--muted); text-decoration: line-through; margin-left: 6px; }
+    .card-order-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 9px 16px;
+      background: var(--insta);
+      border: none; border-radius: 50px;
+      color: #fff; font-size: 0.8rem; font-weight: 600; font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card-order-btn:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(220,39,67,0.35); }
+    .card-order-btn svg { width: 14px; height: 14px; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      max-width: 520px; width: 100%;
+      padding: 40px;
+      transform: scale(0.9); transition: transform 0.3s;
+      position: relative;
+    }
+    .modal-overlay.open .modal { transform: scale(1); }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      width: 32px; height: 32px;
+      background: var(--border); border: none; border-radius: 50%;
+      color: var(--text); cursor: pointer; font-size: 1.1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .modal-close:hover { background: #3a3a3a; }
+    .modal h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem; margin-bottom: 0.5rem;
+    }
+    .modal p { color: var(--muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.5rem; }
+    .modal-steps { list-style: none; margin-bottom: 2rem; }
+    .modal-steps li {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 12px 0; border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+    .modal-steps li:last-child { border-bottom: none; }
+    .step-num {
+      width: 26px; height: 26px; min-width: 26px;
+      background: var(--accent); color: #0a0a0a;
+      border-radius: 50%; font-weight: 700; font-size: 0.8rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .modal-insta-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; padding: 14px;
+      background: var(--insta);
+      border: none; border-radius: 12px;
+      color: #fff; font-size: 1rem; font-weight: 600; font-family: 'DM Sans', sans-serif;
+      cursor: pointer; text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .modal-insta-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(220,39,67,0.4); }
+    .modal-insta-btn svg { width: 20px; height: 20px; }
+
+    /* ── ABOUT ── */
+    #about { background: var(--surface); }
+    .about-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+    }
+    .about-visual {
+      position: relative;
+    }
+    .about-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+      padding-bottom: 20px;
+    }
+    .about-float {
+      position: absolute; bottom: -20px; right: -20px;
+      background: var(--accent); color: #0a0a0a;
+      border-radius: 12px; padding: 16px 20px;
+      font-weight: 700; font-size: 1.1rem;
+      box-shadow: 0 10px 30px rgba(232,201,125,0.3);
+      animation: float 3s ease-in-out infinite;
+    }
+    .about-float span { display: block; font-size: 0.7rem; font-weight: 400; opacity: 0.7; }
+
+    .about-content p { color: var(--muted); line-height: 1.8; margin-bottom: 1.2rem; }
+    /* about photo */
+    .about-photo-wrap {
+      position: relative; border-radius: var(--radius); overflow: hidden;
+      aspect-ratio: 4/3;
+    }
+    .about-photo {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    .about-card:hover .about-photo { transform: scale(1.05); }
+    .about-photo-badge {
+      position: absolute; bottom: 14px; left: 14px;
+      background: rgba(10,10,10,0.85); backdrop-filter: blur(8px);
+      border: 1px solid var(--accent);
+      color: var(--accent); font-size: 0.8rem; font-weight: 600;
+      padding: 6px 14px; border-radius: 50px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .badge-icon { font-size: 0.7rem; }
+    .about-card-text { padding: 20px 20px 0; }
+    .about-card-text h4 { font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-bottom: 6px; }
+    .about-card-text p { color: var(--muted); font-size: 0.88rem; line-height: 1.6; }
+
+    /* about features */
+    .about-features {
+      display: flex; flex-direction: column; gap: 0.9rem;
+      margin: 1.5rem 0;
+    }
+    .about-feature {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 14px 16px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    .feature-icon { font-size: 1.3rem; flex-shrink: 0; line-height: 1; }
+    .about-feature strong { display: block; font-size: 0.9rem; margin-bottom: 2px; }
+    .about-feature span { font-size: 0.82rem; color: var(--muted); }
+
+    /* contact image */
+    .contact-img-wrap {
+      position: relative; border-radius: var(--radius); overflow: hidden;
+      margin: 1.5rem 0;
+      aspect-ratio: 16/7;
+    }
+    .contact-img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .contact-img-tag {
+      position: absolute; bottom: 14px; right: 14px;
+      background: rgba(10,10,10,0.85); backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      color: var(--accent); font-size: 0.78rem; font-weight: 600;
+      padding: 6px 14px; border-radius: 50px;
+    }
+
+    .about-stats {
+      display: flex; gap: 2rem; margin-top: 2rem;
+    }
+    .stat { }
+    .stat-num { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 900; color: var(--accent); }
+    .stat-label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+
+    /* ── CONTACT ── */
+    #contact { background: var(--bg); }
+    .contact-grid {
+      display: grid; grid-template-columns: 1fr 1.2fr; gap: 60px;
+    }
+    .contact-info h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem; margin-bottom: 1rem;
+    }
+    .contact-info p { color: var(--muted); line-height: 1.8; margin-bottom: 2rem; }
+    .contact-links { display: flex; flex-direction: column; gap: 1rem; }
+    .contact-link {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 20px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; text-decoration: none; color: var(--text);
+      font-size: 0.9rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .contact-link:hover { border-color: var(--accent); transform: translateX(6px); }
+    .contact-link-icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink: 0;
+    }
+
+    .contact-form { display: flex; flex-direction: column; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+    .form-group input, .form-group textarea {
+      background: var(--card); border: 1.5px solid var(--border);
+      border-radius: 10px; padding: 13px 16px;
+      color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.95rem;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    .form-group textarea { min-height: 120px; resize: vertical; }
+    .form-group input:focus, .form-group textarea:focus { border-color: var(--accent); }
+    .form-group input::placeholder, .form-group textarea::placeholder { color: #555; }
+    .form-submit {
+      padding: 14px;
+      background: var(--accent); color: #0a0a0a;
+      border: none; border-radius: 10px;
+      font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600;
+      cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .form-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(232,201,125,0.3); }
+    .form-success {
+      display: none; padding: 16px;
+      background: rgba(232,201,125,0.1); border: 1px solid var(--accent);
+      border-radius: 10px; color: var(--accent); font-size: 0.9rem; text-align: center;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 60px 5% 30px;
+    }
+    .footer-grid {
+      display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 60px;
+      margin-bottom: 50px;
+    }
+    .footer-brand .nav-logo { display: inline-block; margin-bottom: 1rem; }
+    .footer-brand p { color: var(--muted); font-size: 0.9rem; line-height: 1.7; max-width: 280px; }
+    .footer-social { display: flex; gap: 10px; margin-top: 1.5rem; }
+    .social-icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      background: var(--card); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted); font-size: 0.9rem; text-decoration: none;
+      transition: border-color 0.2s, color 0.2s, transform 0.2s;
+    }
+    .social-icon:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-3px); }
+    .footer-col h5 {
+      font-size: 0.8rem; letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 1rem;
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.7rem; }
+    .footer-col a { color: var(--muted); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+    .footer-col a:hover { color: var(--text); }
+    .footer-bottom {
+      border-top: 1px solid var(--border); padding-top: 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 0.8rem; color: var(--muted);
+    }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 30px; right: 30px;
+      background: var(--card); border: 1px solid var(--accent);
+      border-radius: 12px; padding: 14px 20px;
+      font-size: 0.9rem; color: var(--accent);
+      transform: translateY(100px); opacity: 0;
+      transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      z-index: 9000;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes cardReveal {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-10px); }
+    }
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.2; }
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── MOBILE ── */
+    .mobile-menu {
+      display: none; position: fixed; top: var(--nav-h); left: 0; right: 0;
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 20px 5%; flex-direction: column; gap: 1rem; z-index: 99;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      color: var(--text); text-decoration: none; font-size: 1rem; font-weight: 500;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+    }
+
+    @media (max-width: 900px) {
+      .nav-links, .nav-insta { display: none; }
+      .hamburger { display: flex; }
+      .about-grid, .contact-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; gap: 30px; }
+      .about-float { display: none; }
+    }
+    @media (max-width: 600px) {
+      section { padding: 70px 5%; }
+      .products-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
+      .card-body { padding: 14px; }
+      .card-name { font-size: 1rem; }
+    }
+    @media (max-width: 400px) {
+      .products-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="nav-logo">Shop<span>Drop</span></a>
+  <ul class="nav-links">
+    <li><a href="#products">Products</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="https://instagram.com/YOUR_USERNAME" target="_blank" class="nav-insta">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+    Order via DM
+  </a>
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#products" onclick="closeMobile()">Products</a>
+  <a href="#about" onclick="closeMobile()">About</a>
+  <a href="#contact" onclick="closeMobile()">Contact</a>
+  <a href="https://instagram.com/YOUR_USERNAME" target="_blank">📸 DM on Instagram</a>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-grain"></div>
+  <p class="hero-tag">✦ Curated Affiliate Products</p>
+  <h1>Find What You <em>Love.</em><br>Order in a DM.</h1>
+  <p>Browse our handpicked collection. See something you like? Slide into our Instagram DMs and we'll send it straight to your door.</p>
+  <div class="hero-cta">
+    <a href="#products" class="btn-primary">Browse Products</a>
+    <a href="https://instagram.com/YOUR_USERNAME" target="_blank" class="btn-ghost">📸 Follow Us</a>
+  </div>
+  <div class="scroll-indicator">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<section id="products">
+  <p class="section-label">✦ Our Collection</p>
+  <h2 class="section-title">Featured <em>Products</em></h2>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="fashion">Fashion</button>
+    <button class="filter-btn" data-filter="beauty">Beauty</button>
+    <button class="filter-btn" data-filter="tech">Tech</button>
+    <button class="filter-btn" data-filter="home">Home</button>
+  </div>
+
+  <div class="products-grid" id="productsGrid">
+    <!-- Products injected by JS -->
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-grid">
+    <div class="about-visual">
+      <div class="about-card">
+        <div class="about-photo-wrap">
+          <img
+            src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80"
+            alt="ShopDrop curator"
+            class="about-photo"
+          />
+          <div class="about-photo-badge">
+            <span class="badge-icon">✦</span>
+            Verified Curator
+          </div>
+        </div>
+        <div class="about-card-text">
+          <h4>Your Trusted Curator</h4>
+          <p>Every product is handpicked, personally tested, and genuinely loved — no fakes, no filler.</p>
+        </div>
+      </div>
+      <div class="about-float">
+        100+ ⭐<br>
+        <span>Happy Customers</span>
+      </div>
+    </div>
+    <div class="about-content">
+      <p class="section-label">✦ About Us</p>
+      <h2 class="section-title" style="margin-bottom:1.5rem">Shopping Should Feel <em>Personal</em></h2>
+      <p>ShopDrop was born out of frustration — endless affiliate sites with zero soul, pushing products nobody actually cares about. We wanted something different: a shop that feels like a text from your most stylish friend saying "you <em>need</em> to see this."</p>
+      <p>Every item you see here has been personally chosen and vetted. We don't list anything we wouldn't buy ourselves. When you DM us to order, you're not filling out a cold form — you're talking to a real person who will help you pick the right size, color, and variant, and keep you updated until your package arrives.</p>
+      <p>Follow us on Instagram for early drops, honest unboxing reviews, and exclusive deals you won't find anywhere else.</p>
+      <div class="about-features">
+        <div class="about-feature">
+          <div class="feature-icon">🎯</div>
+          <div>
+            <strong>Handpicked Only</strong>
+            <span>No bulk listings — every product earns its spot.</span>
+          </div>
+        </div>
+        <div class="about-feature">
+          <div class="feature-icon">💬</div>
+          <div>
+            <strong>Personal DM Support</strong>
+            <span>Real help from a real person, every order.</span>
+          </div>
+        </div>
+        <div class="about-feature">
+          <div class="feature-icon">🚚</div>
+          <div>
+            <strong>Delivered to Your Door</strong>
+            <span>Just share your address in DMs — we handle the rest.</span>
+          </div>
+        </div>
+      </div>
+      <div class="about-stats">
+        <div class="stat">
+          <div class="stat-num">50+</div>
+          <div class="stat-label">Products</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">100+</div>
+          <div class="stat-label">Orders</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">4.9★</div>
+          <div class="stat-label">Rating</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-grid">
+    <div class="contact-info">
+      <p class="section-label">✦ Get In Touch</p>
+      <h2 class="section-title" style="margin-bottom:1rem">Let's <em>Talk</em></h2>
+      <p>Got a question about a product? Wondering about sizing, shipping timelines, or want a recommendation? Just reach out — we reply to every single message.</p>
+
+      <div class="contact-img-wrap">
+        <img
+          src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&q=80"
+          alt="Chat on phone"
+          class="contact-img"
+        />
+        <div class="contact-img-tag">
+          ⚡ Avg. reply time: under 2 hrs
+        </div>
+      </div>
+
+      <div class="contact-links">
+        <a href="https://instagram.com/YOUR_USERNAME" target="_blank" class="contact-link">
+          <div class="contact-link-icon" style="background:linear-gradient(135deg,#f09433,#bc1888);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          </div>
+          <div>
+            <div style="font-weight:600">Instagram DM</div>
+            <div style="font-size:0.8rem;color:var(--muted)">@YOUR_USERNAME — fastest way to reach us</div>
+          </div>
+        </a>
+        <a href="mailto:your@email.com" class="contact-link">
+          <div class="contact-link-icon" style="background:var(--accent);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#0a0a0a"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          </div>
+          <div>
+            <div style="font-weight:600">Email</div>
+            <div style="font-size:0.8rem;color:var(--muted)">your@email.com — we reply within 24 hrs</div>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div>
+      <div class="contact-form" id="contactForm">
+        <div class="form-group">
+          <label>Your Name</label>
+          <input type="text" placeholder="e.g. Sarah Ahmed" id="fname" />
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" placeholder="you@example.com" id="femail" />
+        </div>
+        <div class="form-group">
+          <label>Your Instagram Handle</label>
+          <input type="text" placeholder="@yourhandle" id="finsta" />
+        </div>
+        <div class="form-group">
+          <label>Message</label>
+          <textarea placeholder="Tell us what you're interested in..." id="fmessage"></textarea>
+        </div>
+        <button class="form-submit" onclick="submitForm()">Send Message ✦</button>
+        <div class="form-success" id="formSuccess">
+          ✅ Message received! We'll DM you on Instagram shortly.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="#" class="nav-logo">Shop<span>Drop</span></a>
+      <p>Your go-to for curated affiliate finds. Browse, DM, and get it delivered. Simple as that.</p>
+      <div class="footer-social">
+        <a href="https://instagram.com/YOUR_USERNAME" target="_blank" class="social-icon" title="Instagram">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h5>Navigate</h5>
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#products">Products</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Order</h5>
+      <ul>
+        <li><a href="https://instagram.com/YOUR_USERNAME" target="_blank">DM on Instagram</a></li>
+        <li><a href="#contact">Send a Message</a></li>
+        <li><a href="#products">Browse All</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 ShopDrop. All rights reserved.</span>
+    <span>Made with ♥ for our community</span>
+  </div>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="orderModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h3 id="modalTitle">Order Product</h3>
+    <p>To order this item, follow these simple steps:</p>
+    <ul class="modal-steps">
+      <li>
+        <div class="step-num">1</div>
+        <div>Tap the button below to open our Instagram profile</div>
+      </li>
+      <li>
+        <div class="step-num">2</div>
+        <div>Send us a DM with the product name: <strong id="modalProduct" style="color:var(--accent)"></strong></div>
+      </li>
+      <li>
+        <div class="step-num">3</div>
+        <div>Share your delivery address and we'll confirm your order!</div>
+      </li>
+    </ul>
+    <a href="https://instagram.com/YOUR_USERNAME" target="_blank" class="modal-insta-btn" id="modalBtn">
+      <svg viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+      DM Us on Instagram to Order
+    </a>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── YOUR INSTAGRAM USERNAME ──
+  const INSTAGRAM = 'YOUR_USERNAME';
+
+  // ── PRODUCTS DATA (edit here!) ──
+  const products = [
+    {
+      id: 1, name: 'Silk Touch Handbag', category: 'fashion',
+      price: 2499, oldPrice: 3499, badge: 'hot',
+      desc: 'Premium faux silk with gold accents. Fits everything, looks like a million bucks.',
+      img: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&q=80'
+    },
+    {
+      id: 2, name: 'Glow Serum Set', category: 'beauty',
+      price: 1199, oldPrice: null, badge: 'new',
+      desc: 'Vitamin C + hyaluronic acid duo for radiant, dewy skin in 2 weeks.',
+      img: 'https://images.unsplash.com/photo-1570194065650-d99fb4b8ccb0?w=400&q=80'
+    },
+    {
+      id: 3, name: 'Wireless Earbuds Pro', category: 'tech',
+      price: 3999, oldPrice: 5499, badge: 'sale',
+      desc: 'ANC, 30hr battery, premium sound. Your commute just got an upgrade.',
+      img: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&q=80'
+    },
+    {
+      id: 4, name: 'Linen Throw Pillow Set', category: 'home',
+      price: 899, oldPrice: null, badge: 'new',
+      desc: 'Set of 2 handwoven linen pillows. Earthy tones that go with everything.',
+      img: 'https://images.unsplash.com/photo-1587131782738-de30ea91a542?w=400&q=80'
+    },
+    {
+      id: 5, name: 'Oversized Blazer', category: 'fashion',
+      price: 3299, oldPrice: 4200, badge: 'sale',
+      desc: 'Structured shoulders, relaxed fit. Wear it to meetings or brunch — it works.',
+      img: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400&q=80'
+    },
+    {
+      id: 6, name: 'Matte Lip Kit', category: 'beauty',
+      price: 649, oldPrice: null, badge: 'hot',
+      desc: '6 shades, all-day wear, no transfer. Your new lip collection.',
+      img: 'https://images.unsplash.com/photo-1586495777744-4e6232bf2ebb?w=400&q=80'
+    },
+    {
+      id: 7, name: 'Smart Watch Series X', category: 'tech',
+      price: 7499, oldPrice: 8999, badge: 'sale',
+      desc: 'Health tracking, notifications, 3-day battery. Looks good too.',
+      img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&q=80'
+    },
+    {
+      id: 8, name: 'Aroma Diffuser', category: 'home',
+      price: 1299, oldPrice: null, badge: 'new',
+      desc: 'Ultrasonic mist, 7 LED colors. Transforms any room into a spa.',
+      img: 'https://images.unsplash.com/photo-1616627052368-dca99268a7a4?w=400&q=80'
+    },
+  ];
+
+  // ── RENDER PRODUCTS ──
+  let activeFilter = 'all';
+
+  function renderProducts(filter) {
+    const grid = document.getElementById('productsGrid');
+    const filtered = filter === 'all' ? products : products.filter(p => p.category === filter);
+    grid.innerHTML = filtered.map(p => `
+      <div class="product-card" data-category="${p.category}" onclick="openModal(${p.id})">
+        <div class="card-img">
+          <img src="${p.img}" alt="${p.name}" loading="lazy" />
+          ${p.badge ? `<div class="card-badge badge-${p.badge}">${p.badge}</div>` : ''}
+        </div>
+        <div class="card-body">
+          <div class="card-category">${p.category}</div>
+          <div class="card-name">${p.name}</div>
+          <div class="card-desc">${p.desc}</div>
+          <div class="card-footer">
+            <div>
+              <span class="card-price">₹${p.price.toLocaleString()}</span>
+              ${p.oldPrice ? `<span class="card-price-old">₹${p.oldPrice.toLocaleString()}</span>` : ''}
+            </div>
+            <button class="card-order-btn" onclick="event.stopPropagation(); openModal(${p.id})">
+              <svg viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+              Order
+            </button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    // animate cards
+    setTimeout(() => {
+      document.querySelectorAll('.product-card').forEach((card, i) => {
+        setTimeout(() => card.classList.add('visible'), i * 80);
+      });
+    }, 50);
+  }
+
+  renderProducts('all');
+
+  // ── FILTER ──
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderProducts(btn.dataset.filter);
+    });
+  });
+
+  // ── MODAL ──
+  function openModal(id) {
+    const product = products.find(p => p.id === id);
+    document.getElementById('modalTitle').textContent = 'Order: ' + product.name;
+    document.getElementById('modalProduct').textContent = product.name;
+    document.getElementById('modalBtn').href = `https://instagram.com/${INSTAGRAM}`;
+    document.getElementById('orderModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal() {
+    document.getElementById('orderModal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.getElementById('orderModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('orderModal')) closeModal();
+  });
+
+  // ── CONTACT FORM ──
+  function submitForm() {
+    const name = document.getElementById('fname').value.trim();
+    const email = document.getElementById('femail').value.trim();
+    if (!name || !email) { showToast('Please fill in your name and email.'); return; }
+    document.getElementById('formSuccess').style.display = 'block';
+    showToast('Message sent! We\'ll DM you soon. 📸');
+    ['fname','femail','finsta','fmessage'].forEach(id => document.getElementById(id).value = '');
+    setTimeout(() => document.getElementById('formSuccess').style.display = 'none', 5000);
+  }
+
+  // ── TOAST ──
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  // ── MOBILE MENU ──
+  document.getElementById('hamburger').addEventListener('click', () => {
+    document.getElementById('mobileMenu').classList.toggle('open');
+  });
+  function closeMobile() { document.getElementById('mobileMenu').classList.remove('open'); }
+
+  // ── CUSTOM CURSOR ──
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.transform = `translate(${mx-6}px,${my-6}px)`;
+  });
+  function animateRing() {
+    rx += (mx - rx - 18) * 0.15;
+    ry += (my - ry - 18) * 0.15;
+    ring.style.transform = `translate(${rx}px,${ry}px)`;
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  // ── SCROLL OBSERVER ──
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.style.animationPlayState = 'running'; });
+  }, { threshold: 0.1 });
+
+  // ── NAV SCROLL ──
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').style.background =
+      window.scrollY > 50 ? 'rgba(10,10,10,0.97)' : 'rgba(10,10,10,0.85)';
+  });
+</script>
+</body>
+</html>
